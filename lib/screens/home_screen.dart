@@ -16,7 +16,9 @@ import 'profile_screen.dart';
 
 //home screen -- where all available contacts are shown
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback onThemeToggle;
+  
+  const HomeScreen({super.key, required this.onThemeToggle});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -127,6 +129,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : const Text('We Chat'),
             actions: [
+              //theme toggle button
+              IconButton(
+                tooltip: Theme.of(context).brightness == Brightness.dark 
+                    ? 'Light Mode' 
+                    : 'Dark Mode',
+                onPressed: widget.onThemeToggle,
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                ),
+              ),
+              
               //search user button
               IconButton(
                   tooltip: 'Search',

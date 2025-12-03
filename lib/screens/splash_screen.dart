@@ -10,7 +10,9 @@ import 'home_screen.dart';
 
 //splash screen
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final VoidCallback onThemeToggle;
+  
+  const SplashScreen({super.key, required this.onThemeToggle});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -34,8 +36,8 @@ class _SplashScreenState extends State<SplashScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => APIs.auth.currentUser != null
-                ? const HomeScreen()
-                : const LoginScreen(),
+                ? HomeScreen(onThemeToggle: widget.onThemeToggle)
+                : LoginScreen(onThemeToggle: widget.onThemeToggle),
           ));
     });
   }
