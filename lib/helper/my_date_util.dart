@@ -29,7 +29,7 @@ class MyDateUtil {
   // }
 
   // for getting formatted time for sent & read
-  // [Bux Fix] Avoid bug due to context not mounted when keyboard is open in chat & bottom sheet opens
+  // [Bug Fix] Avoid bug due to context not mounted when keyboard is open in chat & bottom sheet opens
   static String getMessageTime({required String time}) {
     final DateTime sent = DateTime.fromMillisecondsSinceEpoch(int.parse(time));
     final DateTime now = DateTime.now();
@@ -82,7 +82,7 @@ class MyDateUtil {
     String formattedTime = TimeOfDay.fromDateTime(time).format(context);
     if (time.day == now.day &&
         time.month == now.month &&
-        time.year == time.year) {
+        time.year == now.year) {
       return 'Last seen today at $formattedTime';
     }
 
