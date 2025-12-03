@@ -415,7 +415,10 @@ class _OptionItem extends StatelessWidget {
                 child: Text('    $name',
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7) ?? 
+                               (Theme.of(context).brightness == Brightness.dark 
+                                   ? Colors.white70 
+                                   : Colors.black54),
                         letterSpacing: 0.5)))
           ]),
         ));
