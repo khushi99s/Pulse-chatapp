@@ -213,9 +213,9 @@ class _MessageCardState extends State<MessageCard> {
                 height: 4,
                 margin: EdgeInsets.symmetric(
                     vertical: mq.height * .015, horizontal: mq.width * .4),
-                decoration: const BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.all(Radius.circular(8))),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).dividerColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(8))),
               ),
 
               widget.message.type == Type.text
@@ -266,7 +266,7 @@ class _MessageCardState extends State<MessageCard> {
               //separator or divider
               if (isMe)
                 Divider(
-                  color: Colors.black54,
+                  color: Theme.of(context).dividerColor,
                   endIndent: mq.width * .04,
                   indent: mq.width * .04,
                 ),
@@ -300,7 +300,7 @@ class _MessageCardState extends State<MessageCard> {
 
               //separator or divider
               Divider(
-                color: Colors.black54,
+                color: Theme.of(context).dividerColor,
                 endIndent: mq.width * .04,
                 indent: mq.width * .04,
               ),
@@ -413,9 +413,9 @@ class _OptionItem extends StatelessWidget {
             icon,
             Flexible(
                 child: Text('    $name',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 15,
-                        color: Colors.black54,
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                         letterSpacing: 0.5)))
           ]),
         ));
