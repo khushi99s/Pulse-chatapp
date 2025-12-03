@@ -225,7 +225,7 @@ The application leverages Firestore's real-time capabilities through strategic u
 1. Place `google-services.json` in `android/app/`
 2. Configure Firebase options in `firebase_options.dart`
 3. Update package name in Android and iOS configurations
-4. Add Google Gemini API key in `ai_screen.dart` (line 65)
+4. Add Google Gemini API key in `ai_screen.dart` (update `const apiKey = '';` on line 65)
 
 ### Build & Run
 ```bash
@@ -285,6 +285,6 @@ Potential features for future development:
 
 ---
 
-**Version**: 1.0.2
+**Version**: 1.0.2+2
 **Last Updated**: December 2024
 **Maintainer**: Development Team
