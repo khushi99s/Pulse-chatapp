@@ -8,6 +8,7 @@ import 'package:gallery_saver_plus/gallery_saver.dart';
 import '../api/apis.dart';
 import '../helper/dialogs.dart';
 import '../helper/my_date_util.dart';
+import '../helper/theme_helper.dart';
 import '../main.dart';
 import '../models/message.dart';
 
@@ -27,46 +28,132 @@ class _MessageCardState extends State<MessageCard> {
     bool isMe = APIs.user.uid == widget.message.fromId;
     return InkWell(
         onLongPress: () => _showBottomSheet(isMe),
-        child: isMe ? _greenMessage() : _blueMessage());
+        child: isMe ? _sentMessage() : _receivedMessage());
   }
 
-  // sender or another user message
-  Widget _blueMessage() {
+  // sender or another user message (Telegram style - received messages)
+  Widget _receivedMessage() {
     //update last read message if sender and receiver are different
     if (widget.message.read.isEmpty) {
       APIs.updateMessageReadStatus(widget.message);
     }
+    
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        SizedBox(width: mq.width * .04),
         //message content
         Flexible(
           child: Container(
             padding: EdgeInsets.all(widget.message.type == Type.image
-                ? mq.width * .03
-                : mq.width * .04),
-            margin: EdgeInsets.symmetric(
-                horizontal: mq.width * .04, vertical: mq.height * .01),
+                ? mq.width * .02
+                : mq.width * .035),
+            margin: EdgeInsets.symmetric(vertical: mq.height * .005),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 221, 245, 255),
-                border: Border.all(color: Colors.lightBlue),
-                //making borders curved
+                color: ThemeHelper.getReceivedMessageColor(isDark),
+                border: Border.all(
+                  color: isDark 
+                      ? const Color(0xFF2B3842) 
+                      : const Color(0xFFE0E0E0),
+                  width: 1,
+                ),
+                //Telegram-style rounded corners
                 borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                    bottomRight: Radius.circular(30))),
-            child: widget.message.type == Type.text
-                ?
-                //show text
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                    bottomLeft: Radius.circular(12))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.message.type == Type.text
+                    ?
+                    //show text
+                    Text(
+                        widget.message.msg,
+                        style: TextStyle(
+                          fontSize: 15, 
+                          color: ThemeHelper.getMessageTextColor(isDark),
+                        ),
+                      )
+                    :
+                    //show image
+                    ClipRRect(
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                        child: CachedNetworkImage(
+                          imageUrl: widget.message.msg,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.image, size: 70),
+                        ),
+                      ),
+                const SizedBox(height: 2),
+                //message time
                 Text(
-                    widget.message.msg,
-                    style: const TextStyle(fontSize: 15, color: Colors.black87),
-                  )
-                :
-                //show image
-                ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                  MyDateUtil.getFormattedTime(
+                      context: context, time: widget.message.sent),
+                  style: TextStyle(
+                    fontSize: 11, 
+                    color: isDark ? Colors.white38 : Colors.black45,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(width: mq.width * .15),
+      ],
+    );
+  }
+
+  // our or user message (Telegram style - sent messages)
+  Widget _sentMessage() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        SizedBox(width: mq.width * .15),
+        //message content
+        Flexible(
+          child: Container(
+            padding: EdgeInsets.all(widget.message.type == Type.image
+                ? mq.width * .02
+                : mq.width * .035),
+            margin: EdgeInsets.symmetric(vertical: mq.height * .005),
+            decoration: BoxDecoration(
+                color: ThemeHelper.getSentMessageColor(isDark),
+                //Telegram-style rounded corners for sent messages
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(4))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                widget.message.type == Type.text
+                    ?
+                    //show text
+                    Text(
+                        widget.message.msg,
+                        style: const TextStyle(
+                          fontSize: 15, 
+                          color: Colors.white,
+                        ),
+                      )
+                    :
+                    //show image
+                    ClipRRect(
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
                     child: CachedNetworkImage(
                       imageUrl: widget.message.msg,
                       fit: BoxFit.cover,
@@ -75,91 +162,37 @@ class _MessageCardState extends State<MessageCard> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                       errorWidget: (context, url, error) =>
-                          const Icon(Icons.image, size: 70),
+                          const Icon(Icons.image, size: 70, color: Colors.white),
                     ),
                   ),
-          ),
-        ),
-
-        //message time
-        Padding(
-          padding: EdgeInsets.only(right: mq.width * .04),
-          child: Text(
-            MyDateUtil.getFormattedTime(
-                context: context, time: widget.message.sent),
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // our or user message
-  Widget _greenMessage() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        //message time
-        Row(
-          children: [
-            //for adding some space
-            SizedBox(width: mq.width * .04),
-
-            //double tick blue icon for message read
-            if (widget.message.read.isNotEmpty)
-              const Icon(Icons.done_all_rounded, color: Colors.blue, size: 20),
-
-            //for adding some space
-            const SizedBox(width: 2),
-
-            //sent time
-            Text(
-              MyDateUtil.getFormattedTime(
-                  context: context, time: widget.message.sent),
-              style: const TextStyle(fontSize: 13, color: Colors.black54),
-            ),
-          ],
-        ),
-
-        //message content
-        Flexible(
-          child: Container(
-            padding: EdgeInsets.all(widget.message.type == Type.image
-                ? mq.width * .03
-                : mq.width * .04),
-            margin: EdgeInsets.symmetric(
-                horizontal: mq.width * .04, vertical: mq.height * .01),
-            decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 218, 255, 176),
-                border: Border.all(color: Colors.lightGreen),
-                //making borders curved
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                    bottomLeft: Radius.circular(30))),
-            child: widget.message.type == Type.text
-                ?
-                //show text
-                Text(
-                    widget.message.msg,
-                    style: const TextStyle(fontSize: 15, color: Colors.black87),
-                  )
-                :
-                //show image
-                ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.message.msg,
-                      placeholder: (context, url) => const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                const SizedBox(height: 2),
+                //message time and read status
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      MyDateUtil.getFormattedTime(
+                          context: context, time: widget.message.sent),
+                      style: const TextStyle(
+                        fontSize: 11, 
+                        color: Colors.white70,
                       ),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.image, size: 70),
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    //double tick for message read
+                    if (widget.message.read.isNotEmpty)
+                      const Icon(Icons.done_all_rounded, 
+                          color: Colors.lightBlueAccent, size: 16)
+                    else
+                      const Icon(Icons.done, 
+                          color: Colors.white70, size: 16),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
+        SizedBox(width: mq.width * .04),
       ],
     );
   }

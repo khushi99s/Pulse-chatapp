@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../api/apis.dart';
 import '../helper/my_date_util.dart';
+import '../helper/theme_helper.dart';
 import '../main.dart';
 import '../models/chat_user.dart';
 import '../models/message.dart';
@@ -76,7 +77,8 @@ class _ChatScreenState extends State<ChatScreen> {
             flexibleSpace: _appBar(),
           ),
 
-          backgroundColor: const Color.fromARGB(255, 234, 248, 255),
+          backgroundColor: ThemeHelper.getChatBackgroundColor(
+              Theme.of(context).brightness == Brightness.dark),
 
           //body
           body: SafeArea(

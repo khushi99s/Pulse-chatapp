@@ -7,6 +7,7 @@ import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart';
 
 import 'firebase_options.dart';
+import 'helper/theme_helper.dart';
 import 'screens/splash_screen.dart';
 
 //global object for accessing device screen size
@@ -28,27 +29,47 @@ Future<void> main() async {
   });
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemePreference();
+  }
+
+  Future<void> _loadThemePreference() async {
+    final isDark = await ThemeHelper.getThemePreference();
+    if (mounted) {
+      setState(() {
+        _isDarkMode = isDark;
+      });
+    }
+  }
+
+  void toggleTheme() async {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+    await ThemeHelper.setThemePreference(_isDarkMode);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'We Chat',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            useMaterial3: false,
-            appBarTheme: const AppBarTheme(
-              centerTitle: true,
-              elevation: 1,
-              iconTheme: IconThemeData(color: Colors.black),
-              titleTextStyle: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.normal,
-                  fontSize: 19),
-              backgroundColor: Colors.white,
-            )),
-        home: const SplashScreen());
+        theme: ThemeHelper.getLightTheme(),
+        darkTheme: ThemeHelper.getDarkTheme(),
+        themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        home: SplashScreen(onThemeToggle: toggleTheme));
   }
 }
 
